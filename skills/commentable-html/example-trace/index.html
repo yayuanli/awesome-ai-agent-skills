@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en" data-comment-doc="bisect-left" data-comment-root="#content">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bisect_left trace</title>
+  <!-- This example reads the skill's own assets from ../assets/. A real page copies them into its
+       own folder. Run `python3 assets/serve.py` from the skill folder and open /example-trace/. -->
+  <link rel="stylesheet" href="../assets/comment-layer.css">
+  <link rel="stylesheet" href="../assets/toc-layer.css">
+  <style>
+    :root {
+      --ink: #23262f; --muted: #6b7080; --faint: #a4a8b3; --line: #e6e7ec;
+      --accent: #d24d7c; --accent-soft: #fbe9f0;
+      --open-line: #8e94a3;                    /* undecided item */
+      --lt-bg: #dbe6f6; --lt-ink: #27497a;     /* decided: below x */
+      --ge-bg: #dcefe3; --ge-ink: #2b6a43;     /* decided: x or more */
+      --code-bg: #f7f7f9;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    body { margin: 0; background: #fff; color: var(--ink);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    #content { max-width: 900px; margin: 36px auto; padding: 0 24px 140px; }
+    h1 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); font-size: .9rem; margin: 0 0 22px; }
+    h2 { font-size: 1.17rem; line-height: 1.3; margin: 46px 0 14px; }
+    code { font-family: var(--mono); font-size: .9em; }
+    figure { margin: 0; }
+    a { color: var(--accent); }
+    ul.cap { margin: 14px 0 0; padding-left: 1.15em; }
+    ul.cap li { margin: 4px 0; }
+
+    /* the list drawn as a strip of items: one table row per moment */
+    .scroll { overflow-x: auto; }
+    table.strip { border-collapse: separate; border-spacing: 4px; font-variant-numeric: tabular-nums; }
+    table.strip th { font-weight: 600; font-size: .72rem; color: var(--muted); text-align: center;
+      padding: 0 2px; white-space: nowrap; }
+    table.strip th[scope=row] { text-align: right; padding-right: 8px; font-size: .8rem; color: var(--ink); font-weight: 500; }
+    table.strip td.it { width: 40px; min-width: 40px; height: 34px; padding: 0; text-align: center;
+      border-radius: 6px; font-weight: 650; position: relative; }
+    td.und { background: #fff; box-shadow: inset 0 0 0 1.5px var(--open-line); }
+    td.lt { background: var(--lt-bg); color: var(--lt-ink); }
+    td.ge { background: var(--ge-bg); color: var(--ge-ink); }
+    td.it.mid { box-shadow: inset 0 0 0 2.5px var(--accent); }
+    td.it.cut::before { content: ""; position: absolute; left: -3.5px; top: -5px; bottom: -5px; width: 3px;
+      border-radius: 2px; background: var(--accent); }
+    td.it.end { background: repeating-linear-gradient(135deg, #fff 0 4px, #f1f2f5 4px 8px);
+      box-shadow: inset 0 0 0 1px var(--line); }
+    td.it.new { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+    table.strip td.w { font-size: .84rem; color: var(--muted); padding: 0 8px; white-space: nowrap; }
+    table.strip td.w code { color: var(--ink); }
+    table.strip tr.ptr td { font: 600 .7rem/1.15 var(--mono); color: var(--accent); text-align: center;
+      vertical-align: top; height: auto; padding-top: 1px; }
+    table.strip tr.ptr th[scope=row] { font-size: .7rem; color: var(--muted); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .8rem; color: var(--muted); margin: 0 0 10px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { display: inline-block; width: 16px; height: 14px; border-radius: 3px; font-style: normal; }
+    .sw.und { box-shadow: inset 0 0 0 1.5px var(--open-line); background: #fff; }
+    .sw.lt { background: var(--lt-bg); }
+    .sw.ge { background: var(--ge-bg); }
+    .sw.midring { box-shadow: inset 0 0 0 2.5px var(--accent); }
+    .sw.cutbar { width: 3px; height: 18px; background: var(--accent); border-radius: 2px; margin: 0 6px; }
+
+    #nutshell-fig figcaption { color: var(--ink); font-size: 1rem; margin-top: 12px; }
+    #nutshell-fig figcaption ul { margin: 0; padding-left: 1.15em; }
+    #nutshell-fig figcaption li { margin: 4px 0; }
+
+    /* one step: the real code beside the example at that moment */
+    figure.step { container-type: inline-size; }
+    .step-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    @container (min-width: 700px) {
+      .step-grid { grid-template-columns: minmax(0, 1fr) min-content; align-items: start; }
+      figure.frame table.strip td.it { width: 34px; min-width: 34px; }
+      figure.frame figcaption.out { max-width: none; }
+    }
+    .code-head { font-size: .74rem; color: var(--muted); margin: 0 0 4px; }
+    pre.code { margin: 0; padding: 10px 10px 10px 0; background: var(--code-bg); border: 1px solid var(--line);
+      border-radius: 8px; overflow-x: auto; font: 12px/1.6 var(--mono); color: var(--ink); }
+    pre.code code { font-size: inherit; }
+    pre.code .ln::before, pre.code .add::before { display: inline-block; width: 2.6em; padding-right: .7em;
+      text-align: right; color: var(--faint); content: attr(data-n); }
+    pre.code .add::before { content: ""; }
+    pre.code .add { color: #b0476f; font-style: italic; }
+    pre.code .skip { color: #b4b8c2; text-decoration: line-through; text-decoration-color: #d3d6dd; }
+    pre.code .cm { color: #59606f; }
+    pre.code.plain { padding-left: 12px; }
+    pre.code.plain .ln::before { display: none; }
+    .code-head + pre.code + .code-head { margin-top: 12px; }
+    pre.code .v { color: var(--accent); font-weight: 650; }
+    figure.frame { margin: 0; }
+    figcaption.out { margin: 10px 0 0; padding: 9px 12px; border: 1px solid var(--line);
+      border-left: 3px solid var(--accent); border-radius: 6px; background: #fff; font-size: .92rem; max-width: 360px; }
+    figcaption.out .k { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+
+    /* the map after each section: the overview redrawn small, finished sections in ink */
+    .map { display: flex; flex-wrap: wrap; gap: 6px; margin: 22px 0 0; font-size: .74rem; }
+    .map a { flex: 1 1 96px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 8px;
+      border: 1px solid var(--line); border-radius: 6px; color: var(--faint); background: #fafafb;
+      text-decoration: none; white-space: nowrap; overflow: hidden; }
+    .map a.done { color: var(--ink); background: #fff; border-color: #d4d6de; }
+    .map a.here { box-shadow: inset 0 -2px 0 var(--accent); }
+    .mini { display: inline-flex; gap: 1.5px; flex: none; }
+    .mini i { width: 6px; height: 9px; border-radius: 1.5px; background: #e4e6eb; }
+    .map a.done .mini i.u { background: #fff; box-shadow: inset 0 0 0 1px var(--open-line); }
+    .map a.done .mini i.l { background: var(--lt-bg); box-shadow: inset 0 0 0 1px #b9c9e6; }
+    .map a.done .mini i.g { background: var(--ge-bg); box-shadow: inset 0 0 0 1px #b5d9c2; }
+    .map a.done .mini i.c { box-shadow: -2px 0 0 var(--accent); }
+    .map a.done .mini i.n { background: var(--accent); }
+
+    @media (max-width: 560px) {
+      #content { padding: 0 16px 120px; margin-top: 56px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <main id="content">
+    <h1 id="claim">bisect_left puts 8 at index 1, before both 8s already in the list, after 3 comparisons</h1>
+    <p class="sub" id="sub">Python 3.14.3's <code>bisect.bisect_left</code>, traced line by line on the sorted list
+      <code>[3, 8, 8, 15, 21, 40]</code>, a toy example picked for this page. <a href="trace.py">trace.py</a>
+      beside this page ran the code and printed every value shown here.</p>
+
+    <h2 id="nutshell">In a nutshell</h2>
+    <figure id="nutshell-fig">
+      <div class="legend" id="legend">
+        <span><i class="sw und"></i>undecided item, inside <code>a[lo:hi]</code></span>
+        <span><i class="sw lt"></i>decided: below 8</span>
+        <span><i class="sw ge"></i>decided: 8 or more</span>
+        <span><i class="sw midring"></i>the item just compared</span>
+        <span><i class="sw cutbar"></i>where 8 goes</span>
+      </div>
+      <div class="scroll">
+        <table class="strip" id="nutshell-table">
+          <thead>
+            <tr><th>Moment</th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>Comparison</th><th>lo, hi</th></tr>
+          </thead>
+          <tbody>
+            <tr id="nut-start"><th scope="row">Start</th>
+              <td class="it und">3</td><td class="it und">8</td><td class="it und">8</td><td class="it und">15</td><td class="it und">21</td><td class="it und">40</td>
+              <td class="w">none yet</td><td class="w"><code>0, 6</code></td></tr>
+            <tr id="nut-c1"><th scope="row">After comparison 1</th>
+              <td class="it und">3</td><td class="it und">8</td><td class="it und">8</td><td class="it ge mid">15</td><td class="it ge">21</td><td class="it ge">40</td>
+              <td class="w"><code>15 &lt; 8</code> is False</td><td class="w"><code>0, 3</code></td></tr>
+            <tr id="nut-c2"><th scope="row">After comparison 2</th>
+              <td class="it und">3</td><td class="it ge mid">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td>
+              <td class="w"><code>8 &lt; 8</code> is False</td><td class="w"><code>0, 1</code></td></tr>
+            <tr id="nut-c3"><th scope="row">After comparison 3</th>
+              <td class="it lt mid">3</td><td class="it ge cut">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td>
+              <td class="w"><code>3 &lt; 8</code> is True</td><td class="w"><code>1, 1</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        <ul>
+          <li id="cap-claim">bisect_left keeps two indexes, lo and hi. Every item before lo is below 8, every item from hi on is 8 or more, and the items between them are undecided.</li>
+          <li id="cap-how">Each comparison with the middle undecided item moves lo or hi. They meet at index 1, the insertion point: the place 8 can go in with the list still sorted.</li>
+          <li id="cap-setup">Setup: lo starts at 0 and hi at <code>len(a)</code>, which is 6, so all 6 items are undecided.</li>
+          <li id="cap-c1">Comparison 1: <code>a[3]</code> is 15, which is not below 8, so hi moves to 3 and 3 items stay undecided.</li>
+          <li id="cap-c2">Comparison 2: <code>a[1]</code> is 8, which is not below 8 either, so hi moves to 1. Counting an equal item as not below 8 is what puts the new 8 before both 8s.</li>
+          <li id="cap-c3">Comparison 3: <code>a[0]</code> is 3, which is below 8, so lo moves to 1 and meets hi.</li>
+          <li id="cap-return">Return: the loop stops at lo = hi = 1, and inserting 8 there gives <code>[3, 8, 8, 8, 15, 21, 40]</code>, still sorted.</li>
+        </ul>
+      </figcaption>
+    </figure>
+
+    <h2 id="setup">Setup: lo starts at 0 and hi at 6, so all 6 items are undecided</h2>
+    <figure class="step" id="fig-setup">
+      <div class="step-grid">
+        <div class="code-col">
+          <p class="code-head" id="code-head-setup">Lib/bisect.py, lines 74–93. Numbered lines are the file as Python 3.14.3 ships it. Pink lines are notes added for this page. Struck-through lines did not run.</p>
+<pre class="code" id="code-setup"><code><span class="ln" data-n="74">def bisect_left(a, x, lo=0, hi=None, *, key=None):</span>
+<span class="add">    # The call: bisect_left([3, 8, 8, 15, 21, 40], 8)</span>
+<span class="add">    # -&gt; a = [3, 8, 8, 15, 21, 40], x = 8</span>
+<span class="add">    #    lo = 0, hi = None, key = None</span>
+<span class="add">    # (75 to 86: the docstring and a blank line)</span>
+<span class="add">    # Refuse a negative start index.</span>
+<span class="ln" data-n="87">    if lo &lt; 0:          <span class="v"># -&gt; False  (0 &lt; 0)</span></span>
+<span class="ln skip" data-n="88">        raise ValueError(&#x27;lo must be non-negative&#x27;)</span>
+<span class="add">    # No hi given: search to the end of the list.</span>
+<span class="ln" data-n="89">    if hi is None:      <span class="v"># -&gt; True</span></span>
+<span class="ln" data-n="90">        hi = len(a)     <span class="v"># -&gt; 6</span></span>
+<span class="ln cm" data-n="91">    # Note, the comparison uses &quot;&lt;&quot; to match the</span>
+<span class="ln cm" data-n="92">    # __lt__() logic in list.sort() and in heapq.</span>
+<span class="add">    # key is None: compare the items themselves.</span>
+<span class="ln" data-n="93">    if key is None:     <span class="v"># -&gt; True</span></span></code></pre>
+        </div>
+        <figure class="frame" id="frame-fig-setup">
+          <table class="strip" id="frame-setup">
+            <thead><tr><th></th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>end</th></tr></thead>
+            <tbody>
+              <tr id="frame-setup-items"><th scope="row">item</th><td class="it und">3</td><td class="it und">8</td><td class="it und">8</td><td class="it und">15</td><td class="it und">21</td><td class="it und">40</td><td class="it end"></td></tr>
+              <tr class="ptr" id="frame-setup-ptr"><th scope="row">index</th><td>lo</td><td></td><td></td><td></td><td></td><td></td><td>hi</td></tr>
+            </tbody>
+          </table>
+          <figcaption class="out" id="out-setup"><span class="k">Output</span>Nothing is decided yet. All 6 items sit between lo = 0 and hi = 6.</figcaption>
+        </figure>
+      </div>
+    </figure>
+    <ul class="cap">
+      <li id="b-setup-1">hi starts at 6, one past the last index, because 8 could belong after 40, at the end of the list.</li>
+      <li id="b-setup-2">So the insertion point can be any of 7 indexes, 0 to 6, and lo and hi bound all of them.</li>
+      <li id="b-setup-3">With key left as None, the code runs the first of its two loops, lines 94 to 99, which compares the items themselves.</li>
+    </ul>
+    <nav class="map" aria-label="Map of the page">
+      <a href="#setup" class="done here"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i></span>1 · Setup</a>
+      <a href="#compare-1"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>2 · Comparison 1</a>
+      <a href="#compare-2"><span class="mini"><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>3 · Comparison 2</a>
+      <a href="#compare-3"><span class="mini"><i class="l"></i><i class="g c"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>4 · Comparison 3</a>
+      <a href="#return"><span class="mini"><i class="l"></i><i class="n"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>5 · Return</a>
+    </nav>
+
+    <h2 id="compare-1">Comparison 1: a[3] is 15, which is not below 8, so hi moves to 3</h2>
+    <figure class="step" id="fig-compare-1">
+      <div class="step-grid">
+        <div class="code-col">
+          <p class="code-head" id="code-head-compare-1">Lib/bisect.py, lines 94–99, the first pass through the loop. Shown 8 spaces left of where they sit in the file.</p>
+<pre class="code" id="code-compare-1"><code><span class="add"># Go on while some item is undecided.</span>
+<span class="ln" data-n="94">while lo &lt; hi:            <span class="v"># -&gt; True  (0 &lt; 6)</span></span>
+<span class="add">    # Pick the middle undecided item.</span>
+<span class="ln" data-n="95">    mid = (lo + hi) // 2  <span class="v"># -&gt; 3</span></span>
+<span class="add">    # Is a[mid] below 8? The list is sorted, so</span>
+<span class="add">    # this also settles all items on one side of it.</span>
+<span class="ln" data-n="96">    if a[mid] &lt; x:        <span class="v"># -&gt; False  (15 &lt; 8)</span></span>
+<span class="ln skip" data-n="97">        lo = mid + 1</span>
+<span class="ln" data-n="98">    else:</span>
+<span class="add">        # a[mid] and all right of it are 8 or more.</span>
+<span class="ln" data-n="99">        hi = mid          <span class="v"># -&gt; 3</span></span></code></pre>
+        </div>
+        <figure class="frame" id="frame-fig-compare-1">
+          <table class="strip" id="frame-compare-1">
+            <thead><tr><th></th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>end</th></tr></thead>
+            <tbody>
+              <tr id="frame-compare-1-items"><th scope="row">item</th><td class="it und">3</td><td class="it und">8</td><td class="it und">8</td><td class="it ge mid">15</td><td class="it ge">21</td><td class="it ge">40</td><td class="it end"></td></tr>
+              <tr class="ptr" id="frame-compare-1-ptr"><th scope="row">index</th><td>lo</td><td></td><td></td><td>mid<br>hi</td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <figcaption class="out" id="out-compare-1"><span class="k">Output</span>15, 21 and 40 are now known to be 8 or more. hi moves to 3, and 3 items stay undecided.</figcaption>
+        </figure>
+      </div>
+    </figure>
+    <ul class="cap">
+      <li id="b-c1-1">mid is (0 + 6) // 2 = 3, where // divides and rounds down. Of the two middle items, a[2] and a[3], that picks a[3].</li>
+      <li id="b-c1-2">The list is sorted, so 21 and 40 are at least 15, and one comparison settles all three items.</li>
+      <li id="b-c1-3">hi stops at 3 itself, because index 3 is still a possible insertion point. 8 goes there if a[0], a[1] and a[2] are all below 8.</li>
+    </ul>
+    <nav class="map" aria-label="Map of the page">
+      <a href="#setup" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i></span>1 · Setup</a>
+      <a href="#compare-1" class="done here"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>2 · Comparison 1</a>
+      <a href="#compare-2"><span class="mini"><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>3 · Comparison 2</a>
+      <a href="#compare-3"><span class="mini"><i class="l"></i><i class="g c"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>4 · Comparison 3</a>
+      <a href="#return"><span class="mini"><i class="l"></i><i class="n"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>5 · Return</a>
+    </nav>
+
+    <h2 id="compare-2">Comparison 2: a[1] is 8, which is not below 8 either, so hi moves to 1</h2>
+    <figure class="step" id="fig-compare-2">
+      <div class="step-grid">
+        <div class="code-col">
+          <p class="code-head" id="code-head-compare-2">Lib/bisect.py, lines 94–99 again, the second pass through the loop.</p>
+<pre class="code" id="code-compare-2"><code><span class="add"># Go on while some item is undecided.</span>
+<span class="ln" data-n="94">while lo &lt; hi:            <span class="v"># -&gt; True  (0 &lt; 3)</span></span>
+<span class="add">    # Pick the middle undecided item.</span>
+<span class="ln" data-n="95">    mid = (lo + hi) // 2  <span class="v"># -&gt; 1</span></span>
+<span class="add">    # Is a[mid] below 8? The list is sorted, so</span>
+<span class="add">    # this also settles all items on one side of it.</span>
+<span class="ln" data-n="96">    if a[mid] &lt; x:        <span class="v"># -&gt; False  (8 &lt; 8)</span></span>
+<span class="ln skip" data-n="97">        lo = mid + 1</span>
+<span class="ln" data-n="98">    else:</span>
+<span class="add">        # a[mid] and all right of it are 8 or more.</span>
+<span class="ln" data-n="99">        hi = mid          <span class="v"># -&gt; 1</span></span></code></pre>
+        </div>
+        <figure class="frame" id="frame-fig-compare-2">
+          <table class="strip" id="frame-compare-2">
+            <thead><tr><th></th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>end</th></tr></thead>
+            <tbody>
+              <tr id="frame-compare-2-items"><th scope="row">item</th><td class="it und">3</td><td class="it ge mid">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td><td class="it end"></td></tr>
+              <tr class="ptr" id="frame-compare-2-ptr"><th scope="row">index</th><td>lo</td><td>mid<br>hi</td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <figcaption class="out" id="out-compare-2"><span class="k">Output</span>a[1] and every item right of it are decided. hi moves to 1, and only a[0] stays undecided.</figcaption>
+        </figure>
+      </div>
+    </figure>
+    <ul class="cap">
+      <li id="b-c2-1">mid is (0 + 3) // 2 = 1, the middle of the 3 undecided items.</li>
+      <li id="b-c2-2">8 &lt; 8 is False, so an item equal to 8 goes with the items above 8. That is why bisect_left lands before every 8 already in the list.</li>
+      <li id="b-c2-3">bisect_right tests 8 &lt; a[mid] instead. On this same item it moves lo to 2, and it returns 3, after both 8s.</li>
+    </ul>
+    <nav class="map" aria-label="Map of the page">
+      <a href="#setup" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i></span>1 · Setup</a>
+      <a href="#compare-1" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>2 · Comparison 1</a>
+      <a href="#compare-2" class="done here"><span class="mini"><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>3 · Comparison 2</a>
+      <a href="#compare-3"><span class="mini"><i class="l"></i><i class="g c"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>4 · Comparison 3</a>
+      <a href="#return"><span class="mini"><i class="l"></i><i class="n"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>5 · Return</a>
+    </nav>
+
+    <h2 id="compare-3">Comparison 3: a[0] is 3, which is below 8, so lo moves to 1 and meets hi</h2>
+    <figure class="step" id="fig-compare-3">
+      <div class="step-grid">
+        <div class="code-col">
+          <p class="code-head" id="code-head-compare-3">Lib/bisect.py, lines 94–99, the third pass. This time the if branch runs.</p>
+<pre class="code" id="code-compare-3"><code><span class="add"># Go on while some item is undecided.</span>
+<span class="ln" data-n="94">while lo &lt; hi:            <span class="v"># -&gt; True  (0 &lt; 1)</span></span>
+<span class="add">    # Pick the middle undecided item.</span>
+<span class="ln" data-n="95">    mid = (lo + hi) // 2  <span class="v"># -&gt; 0</span></span>
+<span class="add">    # Is a[mid] below 8? The list is sorted, so</span>
+<span class="add">    # this also settles all items on one side of it.</span>
+<span class="ln" data-n="96">    if a[mid] &lt; x:        <span class="v"># -&gt; True  (3 &lt; 8)</span></span>
+<span class="add">        # a[mid] and all left of it are below 8.</span>
+<span class="ln" data-n="97">        lo = mid + 1      <span class="v"># -&gt; 1</span></span>
+<span class="ln skip" data-n="98">    else:</span>
+<span class="ln skip" data-n="99">        hi = mid</span></code></pre>
+        </div>
+        <figure class="frame" id="frame-fig-compare-3">
+          <table class="strip" id="frame-compare-3">
+            <thead><tr><th></th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>end</th></tr></thead>
+            <tbody>
+              <tr id="frame-compare-3-items"><th scope="row">item</th><td class="it lt mid">3</td><td class="it ge cut">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td><td class="it end"></td></tr>
+              <tr class="ptr" id="frame-compare-3-ptr"><th scope="row">index</th><td>mid</td><td>lo<br>hi</td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <figcaption class="out" id="out-compare-3"><span class="k">Output</span>a[0] is now known to be below 8. lo moves to 1, the same index as hi, so no item is undecided.</figcaption>
+        </figure>
+      </div>
+    </figure>
+    <ul class="cap">
+      <li id="b-c3-1">mid is (0 + 1) // 2 = 0, because a[0] is the only undecided item.</li>
+      <li id="b-c3-2">lo = mid + 1 jumps past a[0], because 8 must go after every item below it.</li>
+      <li id="b-c3-3">Three comparisons settled six items. The undecided count went 6, 3, 1, 0, and each comparison left at most half.</li>
+    </ul>
+    <nav class="map" aria-label="Map of the page">
+      <a href="#setup" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i></span>1 · Setup</a>
+      <a href="#compare-1" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>2 · Comparison 1</a>
+      <a href="#compare-2" class="done"><span class="mini"><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>3 · Comparison 2</a>
+      <a href="#compare-3" class="done here"><span class="mini"><i class="l"></i><i class="g c"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>4 · Comparison 3</a>
+      <a href="#return"><span class="mini"><i class="l"></i><i class="n"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>5 · Return</a>
+    </nav>
+
+    <h2 id="return">Return: lo and hi both equal 1, so 8 goes in at index 1</h2>
+    <figure class="step" id="fig-return">
+      <div class="step-grid">
+        <div class="code-col">
+          <p class="code-head" id="code-head-return">Lib/bisect.py, lines 94 and 107: the loop test fails, and the function returns.</p>
+<pre class="code" id="code-return"><code><span class="add">    # No item is undecided, so the loop ends.</span>
+<span class="ln" data-n="94">    while lo &lt; hi:        <span class="v"># -&gt; False  (1 &lt; 1)</span></span>
+<span class="add"># lo is the insertion point.</span>
+<span class="ln" data-n="107">return lo                 <span class="v"># -&gt; 1</span></span></code></pre>
+          <p class="code-head" id="code-head-check">The same call typed into a fresh interpreter, where <code>import bisect</code> loads the C version. trace.py ran these lines.</p>
+<pre class="code plain" id="code-check"><code><span class="ln">import bisect</span>
+<span class="ln">a = [3, 8, 8, 15, 21, 40]</span>
+<span class="ln">bisect.bisect_left        <span class="v"># -&gt; &lt;built-in function bisect_left&gt;</span></span>
+<span class="ln">bisect.bisect_left(a, 8)  <span class="v"># -&gt; 1</span></span>
+<span class="ln">a.insert(bisect.bisect_left(a, 8), 8)</span>
+<span class="ln">a                         <span class="v"># -&gt; [3, 8, 8, 8, 15, 21, 40]</span></span></code></pre>
+        </div>
+        <figure class="frame" id="frame-fig-return">
+          <table class="strip" id="frame-return">
+            <thead><tr><th></th><th>a[0]</th><th>a[1]</th><th>a[2]</th><th>a[3]</th><th>a[4]</th><th>a[5]</th><th>a[6]</th></tr></thead>
+            <tbody>
+              <tr id="frame-return-before"><th scope="row">before</th><td class="it lt">3</td><td class="it ge cut">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td><td class="it end"></td></tr>
+              <tr id="frame-return-after"><th scope="row">after</th><td class="it lt">3</td><td class="it new">8</td><td class="it ge">8</td><td class="it ge">8</td><td class="it ge">15</td><td class="it ge">21</td><td class="it ge">40</td></tr>
+            </tbody>
+          </table>
+          <figcaption class="out" id="out-return"><span class="k">Output</span>bisect_left returns 1. Inserting 8 there puts it just before the two 8s, and the list stays sorted.</figcaption>
+        </figure>
+      </div>
+    </figure>
+    <ul class="cap">
+      <li id="b-ret-1">The loop test 1 &lt; 1 is False, so the loop stops after 3 passes and the function returns lo, which is 1.</li>
+      <li id="b-ret-2">Index 1 splits the list into a[:1] = [3], all below 8, and a[1:] = [8, 8, 15, 21, 40], all 8 or more.</li>
+      <li id="b-ret-3">The C version that a plain <code>import bisect</code> gives you also returns 1, so the traced Python code matches what you run.</li>
+    </ul>
+    <nav class="map" aria-label="Map of the page">
+      <a href="#setup" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i><i class="u"></i></span>1 · Setup</a>
+      <a href="#compare-1" class="done"><span class="mini"><i class="u"></i><i class="u"></i><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>2 · Comparison 1</a>
+      <a href="#compare-2" class="done"><span class="mini"><i class="u"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>3 · Comparison 2</a>
+      <a href="#compare-3" class="done"><span class="mini"><i class="l"></i><i class="g c"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>4 · Comparison 3</a>
+      <a href="#return" class="done here"><span class="mini"><i class="l"></i><i class="n"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i><i class="g"></i></span>5 · Return</a>
+    </nav>
+  </main>
+
+  <script src="../assets/comment-layer.js"></script>
+  <script src="../assets/toc-layer.js"></script>
+</body>
+</html>

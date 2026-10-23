@@ -1,0 +1,1027 @@
+{
+ "python": "3.14.3",
+ "source_file": "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/bisect.py",
+ "sorted_list": [
+  3,
+  8,
+  8,
+  15,
+  21,
+  40
+ ],
+ "value": 8,
+ "bisect_left": {
+  "result": 1,
+  "c_result": 1,
+  "same_as_c": true,
+  "comparisons": 3,
+  "mids": [
+   3,
+   1,
+   0
+  ],
+  "compared_items": [
+   15,
+   8,
+   3
+  ],
+  "windows_at_loop_test": [
+   [
+    0,
+    6
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    0,
+    1
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "undecided_counts": [
+   6,
+   3,
+   1,
+   0
+  ],
+  "first_line_locals": {
+   "a": [
+    3,
+    8,
+    8,
+    15,
+    21,
+    40
+   ],
+   "x": 8,
+   "lo": 0,
+   "hi": null,
+   "key": null
+  },
+  "steps": [
+   {
+    "line": 87,
+    "code": "    if lo < 0:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "test",
+    "test": "lo < 0",
+    "value": false,
+    "sides": {
+     "lo": 0
+    }
+   },
+   {
+    "line": 89,
+    "code": "    if hi is None:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "test",
+    "test": "hi is None",
+    "value": true,
+    "sides": {
+     "hi": null
+    }
+   },
+   {
+    "line": 90,
+    "code": "        hi = len(a)",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "assign",
+    "target": "hi",
+    "value": 6
+   },
+   {
+    "line": 93,
+    "code": "    if key is None:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "test",
+    "test": "key is None",
+    "value": true,
+    "sides": {
+     "key": null
+    }
+   },
+   {
+    "line": 94,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 0,
+     "hi": 6
+    }
+   },
+   {
+    "line": 95,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 3
+   },
+   {
+    "line": 96,
+    "code": "            if a[mid] < x:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "test",
+    "test": "a[mid] < x",
+    "value": false,
+    "sides": {
+     "a[mid]": 15,
+     "x": 8
+    }
+   },
+   {
+    "line": 99,
+    "code": "                hi = mid",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "assign",
+    "target": "hi",
+    "value": 3
+   },
+   {
+    "line": 94,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 0,
+     "hi": 3
+    }
+   },
+   {
+    "line": 95,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 1
+   },
+   {
+    "line": 96,
+    "code": "            if a[mid] < x:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "test",
+    "test": "a[mid] < x",
+    "value": false,
+    "sides": {
+     "a[mid]": 8,
+     "x": 8
+    }
+   },
+   {
+    "line": 99,
+    "code": "                hi = mid",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "assign",
+    "target": "hi",
+    "value": 1
+   },
+   {
+    "line": 94,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 1,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 0,
+     "hi": 1
+    }
+   },
+   {
+    "line": 95,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 1,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 0
+   },
+   {
+    "line": 96,
+    "code": "            if a[mid] < x:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 1,
+     "key": null,
+     "mid": 0
+    },
+    "kind": "test",
+    "test": "a[mid] < x",
+    "value": true,
+    "sides": {
+     "a[mid]": 3,
+     "x": 8
+    }
+   },
+   {
+    "line": 97,
+    "code": "                lo = mid + 1",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 1,
+     "key": null,
+     "mid": 0
+    },
+    "kind": "assign",
+    "target": "lo",
+    "value": 1
+   },
+   {
+    "line": 94,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 1,
+     "hi": 1,
+     "key": null,
+     "mid": 0
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": false,
+    "sides": {
+     "lo": 1,
+     "hi": 1
+    }
+   },
+   {
+    "line": 107,
+    "code": "    return lo",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 1,
+     "hi": 1,
+     "key": null,
+     "mid": 0
+    },
+    "kind": "return",
+    "value": 1
+   }
+  ]
+ },
+ "bisect_right": {
+  "result": 3,
+  "c_result": 3,
+  "same_as_c": true,
+  "comparisons": 3,
+  "mids": [
+   3,
+   1,
+   2
+  ],
+  "compared_items": [
+   15,
+   8,
+   8
+  ],
+  "windows_at_loop_test": [
+   [
+    0,
+    6
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    3,
+    3
+   ]
+  ],
+  "undecided_counts": [
+   6,
+   3,
+   1,
+   0
+  ],
+  "first_line_locals": {
+   "a": [
+    3,
+    8,
+    8,
+    15,
+    21,
+    40
+   ],
+   "x": 8,
+   "lo": 0,
+   "hi": null,
+   "key": null
+  },
+  "steps": [
+   {
+    "line": 34,
+    "code": "    if lo < 0:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "test",
+    "test": "lo < 0",
+    "value": false,
+    "sides": {
+     "lo": 0
+    }
+   },
+   {
+    "line": 36,
+    "code": "    if hi is None:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "test",
+    "test": "hi is None",
+    "value": true,
+    "sides": {
+     "hi": null
+    }
+   },
+   {
+    "line": 37,
+    "code": "        hi = len(a)",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": null,
+     "key": null
+    },
+    "kind": "assign",
+    "target": "hi",
+    "value": 6
+   },
+   {
+    "line": 40,
+    "code": "    if key is None:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "test",
+    "test": "key is None",
+    "value": true,
+    "sides": {
+     "key": null
+    }
+   },
+   {
+    "line": 41,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 0,
+     "hi": 6
+    }
+   },
+   {
+    "line": 42,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 3
+   },
+   {
+    "line": 43,
+    "code": "            if x < a[mid]:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "test",
+    "test": "x < a[mid]",
+    "value": true,
+    "sides": {
+     "x": 8,
+     "a[mid]": 15
+    }
+   },
+   {
+    "line": 44,
+    "code": "                hi = mid",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 6,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "assign",
+    "target": "hi",
+    "value": 3
+   },
+   {
+    "line": 41,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 0,
+     "hi": 3
+    }
+   },
+   {
+    "line": 42,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 3
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 1
+   },
+   {
+    "line": 43,
+    "code": "            if x < a[mid]:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "test",
+    "test": "x < a[mid]",
+    "value": false,
+    "sides": {
+     "x": 8,
+     "a[mid]": 8
+    }
+   },
+   {
+    "line": 46,
+    "code": "                lo = mid + 1",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 0,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "assign",
+    "target": "lo",
+    "value": 2
+   },
+   {
+    "line": 41,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 2,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": true,
+    "sides": {
+     "lo": 2,
+     "hi": 3
+    }
+   },
+   {
+    "line": 42,
+    "code": "            mid = (lo + hi) // 2",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 2,
+     "hi": 3,
+     "key": null,
+     "mid": 1
+    },
+    "kind": "assign",
+    "target": "mid",
+    "value": 2
+   },
+   {
+    "line": 43,
+    "code": "            if x < a[mid]:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 2,
+     "hi": 3,
+     "key": null,
+     "mid": 2
+    },
+    "kind": "test",
+    "test": "x < a[mid]",
+    "value": false,
+    "sides": {
+     "x": 8,
+     "a[mid]": 8
+    }
+   },
+   {
+    "line": 46,
+    "code": "                lo = mid + 1",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 2,
+     "hi": 3,
+     "key": null,
+     "mid": 2
+    },
+    "kind": "assign",
+    "target": "lo",
+    "value": 3
+   },
+   {
+    "line": 41,
+    "code": "        while lo < hi:",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 3,
+     "hi": 3,
+     "key": null,
+     "mid": 2
+    },
+    "kind": "test",
+    "test": "lo < hi",
+    "value": false,
+    "sides": {
+     "lo": 3,
+     "hi": 3
+    }
+   },
+   {
+    "line": 54,
+    "code": "    return lo",
+    "before": {
+     "a": [
+      3,
+      8,
+      8,
+      15,
+      21,
+      40
+     ],
+     "x": 8,
+     "lo": 3,
+     "hi": 3,
+     "key": null,
+     "mid": 2
+    },
+    "kind": "return",
+    "value": 3
+   }
+  ]
+ },
+ "split": {
+  "left": [
+   3
+  ],
+  "right": [
+   8,
+   8,
+   15,
+   21,
+   40
+  ],
+  "all_left_below": true,
+  "all_right_at_least": true
+ },
+ "after_insert": [
+  3,
+  8,
+  8,
+  8,
+  15,
+  21,
+  40
+ ],
+ "after_insert_sorted": true,
+ "check": [
+  {
+   "code": "import bisect",
+   "value": null
+  },
+  {
+   "code": "a = [3, 8, 8, 15, 21, 40]",
+   "value": null
+  },
+  {
+   "code": "bisect.bisect_left",
+   "value": "<built-in function bisect_left>"
+  },
+  {
+   "code": "bisect.bisect_left(a, 8)",
+   "value": "1"
+  },
+  {
+   "code": "a.insert(bisect.bisect_left(a, 8), 8)",
+   "value": null
+  },
+  {
+   "code": "a",
+   "value": "[3, 8, 8, 8, 15, 21, 40]"
+  }
+ ]
+}

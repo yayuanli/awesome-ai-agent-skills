@@ -237,15 +237,22 @@
       const bits = [rowName, col].filter(Boolean);
       if (bits.length) return bits.join(" · ");
     }
+    // Inside a figure, the heading to name is the one before the figure, not one inside a drawing.
+    const fig = node.closest && node.closest("figure");
     const heading = (() => {
       let h = node.closest && node.closest("h1,h2,h3,h4,h5,h6,section,article,li,tr");
       if (h && /^H[1-6]$/.test(h.tagName)) return norm(h.textContent).slice(0, 40);
-      let prev = node;
+      let prev = fig || node;
       for (let i = 0; i < 6 && prev; i++) { prev = prev.previousElementSibling; if (prev && /^H[1-6]$/.test(prev.tagName)) return norm(prev.textContent).slice(0, 40); }
       return "";
     })();
-    const snippet = norm(exact || node.textContent).slice(0, 48);
-    return [heading, node.tagName.toLowerCase() + (snippet ? " “" + snippet + "”" : "")].filter(Boolean).join(" · ");
+    let snippet = norm(exact || node.textContent).slice(0, 48);
+    // A shape or an image has no text of its own, so its figure's caption says what it shows.
+    const cap = !snippet && fig && fig.querySelector("figcaption");
+    const alt = !snippet && node.getAttribute && (node.getAttribute("alt") || node.getAttribute("aria-label"));
+    if (alt) snippet = norm(alt).slice(0, 48);
+    return [heading, cap ? norm(cap.textContent).slice(0, 48).trim() : "",
+      node.tagName.toLowerCase() + (snippet ? " “" + snippet + "”" : "")].filter(Boolean).join(" · ");
   }
 
   function docText() { return contentRoot.innerText || contentRoot.textContent || ""; }

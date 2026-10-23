@@ -44,7 +44,7 @@ cp -r awesome-ai-agent-skills/skills/commentable-html ~/.claude/skills/
         replies in every thread ────────────────────────────────┘
 ```
 
-**Try the demo** without an agent: `cd awesome-ai-agent-skills/skills/commentable-html && python3 assets/serve.py`, then open http://127.0.0.1:8777/example/ and press C.
+**Try the demo** without an agent: `cd awesome-ai-agent-skills/skills/commentable-html && python3 assets/serve.py`, then open http://127.0.0.1:8777/example/ and press C. A second page, `/example-trace/`, traces Python's `bisect_left` line by line, the form the skill uses to explain how code works.
 
 [Skill folder](skills/commentable-html) · needs Python 3 and a browser, nothing to install.
 

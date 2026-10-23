@@ -55,16 +55,22 @@ point shows at a glance and the reader finds their place again after any gap.
    then each section once, in order. Write it as if the reader stops there, because many will.
 5. Give each part of the overview its own section. Open the section with its figure (a drawing, a
    table, or real images). Under the figure, put two to four bullets of about twenty words, one
-   claim each. Close the section with a map: the overview redrawn small, finished sections in ink
-   and the rest greyed out, so a reader back from a break finds their place at a glance.
+   claim each. Close the section with a map: a row of small boxes, one per section in the
+   overview's order, finished sections in ink and the rest greyed out, so a reader back from a
+   break finds their place at a glance.
 6. If a part is a single fact, give it one sentence instead of a section.
 7. Make every paragraph the caption of one part or one arrow of a figure. If a paragraph belongs to
    no figure, delete it. If two paragraphs describe the same part, keep one.
-8. Build from real blocks: a `<figure>` around a picture and its caption, a real `<table>` with
-   `<th>` headers, lists, and headings with stable ids. The comment layer names a comment's target
-   from them, so a comment on a table cell reads "row · column".
+8. Build from real blocks: a `<figure>` around a picture and its `<figcaption>`, a real `<table>`
+   with `<th>` headers, lists, and headings with stable ids. The comment layer labels each comment
+   from them: "row · column" for a table cell, the nearest heading and the first words for text,
+   and the figure's caption for a shape or an image, which has no text of its own.
+9. Put every number a reader may question in text: a table cell, a caption, or an SVG `<text>`. A
+   comment on text finds its place again by that text after an edit, and a comment on a bare shape
+   only by the shape's position in the page.
 
-`example/` holds a report built this way. Read it to calibrate how much one section carries.
+`example/` holds a report built this way, and `example-trace/` a trace (→ *When the page explains
+how something works*). Read the one that matches your page to calibrate how much a section carries.
 
 ### Write it plainly
 
@@ -88,21 +94,32 @@ point shows at a glance and the reader finds their place again after any gap.
 ### When the page explains how something works
 
 A model's forward pass, a training step, a pipeline, a metric or any other algorithm gets a trace:
-its real code, run on one real example, step by step.
+its real code, run on one real example, step by step. It keeps the page shape above, with these
+rules on top.
 
 1. Pick one real example from the project's data and use it in every section. If the project has
    no data yet, use a toy example and say so on the page.
-2. Show the real code in its own language, with names that say what they hold. Above each step, put
-   a comment in plain words that says what the step does and why.
-3. End each line that produces something with `# -> value`: a shape, a list, a count, a string.
-4. Get every value by running the code, and keep the script that computed them next to the page. If
-   nothing has produced a value yet, mark it ILLUSTRATION.
-5. Beside each step, show the example at that moment: a frame, the table with the rows this step
-   touched coloured, or the text with the changed part marked. Add one box that says the step's
-   output in plain words.
-6. If a step sends text to a model or gets text back, show that text in full and unfolded. A size or
+2. Give each step its own section. Give each pass of a loop its own section too, with the same code
+   and new values, the way a debugger steps it. The section's figure is the code beside a picture
+   of the example, and the bullets and the map follow it as on any page.
+3. Show the real code in its own language. If you write the code, give it names that say what they
+   hold. If it is library code, keep its names and explain them in your comments.
+4. Above each step, add a comment in plain words that says what the step does and why. End each line
+   that produces something with `# -> value`: a shape, a list, a count, a string.
+5. Mark what you added so it reads apart from the file. Show the file's own lines with their line
+   numbers, your comments and values in one colour without numbers, and the lines that did not run
+   struck through.
+6. Get every value by running the code. Keep the script that computes them in the page's folder, and
+   have it print or write the values the page shows, so no number is copied by hand. If nothing has
+   produced a value yet, mark it ILLUSTRATION.
+7. Beside each step, show the example at that moment: the table with the rows this step touched
+   coloured, the text with the changed part marked, an image, or a video frame. Under the picture,
+   put one box that says the step's output in plain words. On a 1440px screen with both sidebars
+   docked, the code and the picture share about 760px, so let them stack when they do not fit.
+8. If a step sends text to a model or gets text back, show that text in full and unfolded. A size or
    a summary hides exactly what the reader needs to check.
-7. Open with the claim, then the header "In a nutshell" over one overview picture. Draw the thing the
+9. Open with the claim, then the header "In a nutshell" over one overview picture. That picture is
+   the page's overview figure, so its caption still names every section once. Draw the thing the
    method works on, to scale with the example's real counts, and show the method's effect as that
    thing changing from one moment to the next. A chain of boxes that name stages shows nothing. To
    test the picture, cover its words. If it no longer shows where the method acts, redraw it.
@@ -112,7 +129,8 @@ and a picture beside the words, so no part can be read two ways.
 
 ## Scaffold a page
 
-Make one folder per page and copy the assets in, so the folder is self-contained and portable.
+Make one folder per page, in the project the page reports on, and copy the assets in, so the folder
+is self-contained and portable.
 
 ```
 <page folder>/
@@ -123,6 +141,7 @@ Make one folder per page and copy the assets in, so the folder is self-contained
   toc-layer.js
   serve.py
   document.comments.json   # the comment store, created by the first comment
+  trace.py                 # optional: the script that computes the page's values
 ```
 
 Wire the page like `assets/template.html`:
@@ -140,17 +159,19 @@ Write the content as ordinary HTML. Never add comment markup by hand, because th
 `toc-layer.js` builds a foldable contents list on the left from the headings in the content, so
 never hand-write a nav.
 
-- `h2` headings become sections, and `h3` headings become groups that start folded. In a long
+- `h2` headings become sections, and the `h3` rows under each section start folded. In a long
   multi-part page, give part headings `class="part"` on an `h2`, and the other `h2`s nest under them.
-- If the page has fewer than 3 headings, no sidebar appears.
+- If the page has fewer than 3 `h2` and `h3` headings in all, no sidebar appears.
 - Give headings stable ids yourself, because comment anchors and sidebar links share them. A heading
   without an id gets one made from its text.
 - The sidebar reads headings from `#content`. If the content has another container, set
   `data-content="<selector>"` on the `toc-layer.js` script tag.
 - Mark an element `data-toc="skip"` to keep the headings inside it out of the sidebar, such as a
   closed `<details>` fold, because a link into a closed fold scrolls nowhere.
-- At 1360px and wider the sidebar docks on the left. Narrower, it hides behind a "☰ Contents" button.
-  The reader can hide it with « and resize it by dragging its edge, and the page remembers both.
+- At 1360px and wider the sidebar docks on the left, 248px wide, and the comments panel docks on the
+  right, 340px wide, so the content gets the band between them. Narrower, the sidebar hides behind
+  a "☰ Contents" button. The reader can hide it with « and resize it by dragging its edge, and the
+  page remembers both.
 - The colours come from `--tl-accent`, `--tl-ink`, `--tl-muted`, `--tl-faint`, `--tl-line` and
   `--tl-accent-line`. Set `data-toc="off"` on `<html>` to turn the sidebar off, but only if the
   reader asks.
@@ -175,7 +196,8 @@ Tell the reader these controls the first time you hand over a page.
 
 ## How you read and reply
 
-Start the server in the page's folder and give the reader the link:
+Start the server in the page's folder and give the reader the link. Run it in the background,
+because it keeps running until stopped:
 
 ```bash
 python3 serve.py          # → http://127.0.0.1:8777/    a second page: python3 serve.py 8778
@@ -262,8 +284,8 @@ keeps either hit only if that element still holds the quoted text or something c
 fail, it searches the page for the quote and allows light edits. A comment that finds no match goes to the panel's
 "Orphaned" list with its original text, and one that matched only roughly shows "≈ moved".
 
-- Edit content in place rather than regenerating the whole file, and keep stable ids on the blocks
-  readers comment on.
+- Keep stable ids on the blocks readers comment on, whether you edit the page by hand or a script
+  rebuilds it. When you edit by hand, change blocks in place rather than rewriting the whole file.
 - A stable id alone does not hold a comment. If a rewrite cuts 30–50% of a block's words, the quote
   no longer matches and the block's threads become orphans.
 
