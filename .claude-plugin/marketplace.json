@@ -1,0 +1,23 @@
+{
+  "name": "awesome-ai-agent-skills",
+  "owner": {
+    "name": "Yayuan Li",
+    "url": "https://github.com/yayuanli"
+  },
+  "description": "AI researcher edition: agent skills I use every day, each with a TL;DR, a use case and a flow.",
+  "plugins": [
+    {
+      "name": "commentable-html",
+      "source": "./skills/commentable-html",
+      "description": "The agent delivers its report as an HTML page you comment on like a Google Doc, and answers every comment.",
+      "author": {
+        "name": "Yayuan Li"
+      },
+      "homepage": "https://github.com/yayuanli/awesome-ai-agent-skills#commentable-html",
+      "repository": "https://github.com/yayuanli/awesome-ai-agent-skills",
+      "license": "MIT",
+      "keywords": ["html", "comments", "review", "report", "skill"],
+      "category": "productivity"
+    }
+  ]
+}

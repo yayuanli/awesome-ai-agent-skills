@@ -1,6 +1,6 @@
 # Awesome AI Agent Skills
 
-**AI researcher edition.** Skills I use every day doing AI research with a coding agent. Each one is a folder: copy it in, then call it by name.
+**AI researcher edition.** Skills I use every day doing AI research with a coding agent. Install one, then ask for it in plain words.
 
 | Skill | What it does | You say |
 |---|---|---|
@@ -8,12 +8,19 @@
 
 ## Install
 
-```bash
-git clone https://github.com/yayuanli/awesome-ai-agent-skills
-cp -r awesome-ai-agent-skills/skills/commentable-html ~/.claude/skills/
+In [Claude Code](https://code.claude.com/docs/en/skills), type this in a session. It installs the skill as a plugin, and `/plugin` updates it later:
+
+```text
+/plugin install commentable-html --marketplace yayuanli/awesome-ai-agent-skills
 ```
 
-`~/.claude/skills/` is where [Claude Code](https://code.claude.com/docs/en/skills) looks for your skills. Each folder here is a plain `SKILL.md` in the [Agent Skills](https://agentskills.io) format and needs no other skill.
+For other agents too (Codex, Cursor and [more](https://skills.sh)), run this in your project. Add `-g` to install it for every project:
+
+```bash
+npx skills add yayuanli/awesome-ai-agent-skills
+```
+
+Each skill is a plain `SKILL.md` folder in the [Agent Skills](https://agentskills.io) format and needs no other skill, so copying `skills/commentable-html` into `~/.claude/skills/` works too.
 
 ---
 
