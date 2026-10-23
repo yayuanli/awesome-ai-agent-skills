@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" data-comment-doc="document" data-comment-root="#content">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ablation report (demo)</title>
+  <!-- This demo reads the skill's own assets from ../assets/. A real page copies them into its
+       own folder. Run `python3 assets/serve.py` from the skill folder and open /example/. -->
+  <link rel="stylesheet" href="../assets/comment-layer.css">
+  <link rel="stylesheet" href="../assets/toc-layer.css">
+  <style>
+    :root {
+      --ink: #23262f; --muted: #6b7080; --faint: #a4a8b3; --line: #e6e7ec;
+      --accent: #d24d7c; --grey: #bfc3cc;
+    }
+    body { margin: 0; background: #fff; color: var(--ink);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    #content { max-width: 860px; margin: 36px auto; padding: 0 24px 140px; }
+    h1 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); font-size: .9rem; margin: 0 0 22px; }
+    h2 { font-size: 1.17rem; line-height: 1.3; margin: 46px 0 14px; }
+    figure { margin: 0; }
+    figcaption { color: var(--muted); font-size: .84rem; margin-top: 8px; }
+    ul.cap { margin: 14px 0 0; padding-left: 1.15em; }
+    ul.cap li { margin: 4px 0; }
+    b.num { font-variant-numeric: tabular-nums; }
+
+    /* overview: one panel per section, each with its own small figure */
+    .panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .panel { display: block; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 10px;
+      color: inherit; text-decoration: none; }
+    .panel:hover { border-color: #d4d6de; }
+    .panel .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+    .panel svg { display: block; width: 100%; height: auto; margin: 8px 0 6px; }
+    .panel p { margin: 0; font-weight: 600; font-size: .92rem; line-height: 1.35; }
+    .panel .go { display: inline-block; margin-top: 6px; font-size: .76rem; color: var(--accent); }
+    #overview figcaption { color: var(--ink); font-size: 1rem; margin-top: 12px; }
+    #overview figcaption ul { margin: 0; padding-left: 1.15em; }
+    #overview figcaption li { margin: 4px 0; }
+
+    /* tables */
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th { text-align: left; font-weight: 600; font-size: .74rem; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid #d9dbe2; }
+    td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.big { color: var(--accent); font-weight: 700; }
+
+    /* the map after each section: the overview redrawn small, finished sections in ink */
+    .map { display: flex; gap: 6px; margin: 22px 0 0; font-size: .74rem; }
+    .map span { flex: 1; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px;
+      color: var(--faint); background: #fafafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .map span.done { color: var(--ink); background: #fff; border-color: #d4d6de; }
+    .map span.here { box-shadow: inset 0 -2px 0 var(--accent); }
+
+    svg text { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <!-- A report built the way SKILL.md says: the claim first, an overview figure whose caption is
+       the page in miniature, then one section per part of the overview. Each section opens with
+       its figure, has two to four one-claim bullets, and closes with the map. -->
+  <main id="content">
+    <h1 id="claim">Augmentation carries most of the gain: removing it costs 4.1 points</h1>
+    <p class="sub">Ablation of a 10-class image classifier · 3 seeds per run · a demo with made-up numbers</p>
+
+    <figure id="overview">
+      <div class="panels">
+        <a class="panel" id="panel-aug" href="#augmentation">
+          <span class="k">1 · Augmentation</span>
+          <svg viewBox="0 0 220 64" role="img" aria-label="Accuracy lost when each part is removed">
+            <text x="0" y="16" font-size="10" fill="#6b7080">augmentation</text>
+            <rect x="80" y="6" width="100" height="12" rx="2" fill="#d24d7c"/>
+            <text x="184" y="16" font-size="10" fill="#23262f">−4.1</text>
+            <text x="0" y="36" font-size="10" fill="#6b7080">pretraining</text>
+            <rect x="80" y="26" width="61" height="12" rx="2" fill="#bfc3cc"/>
+            <text x="145" y="36" font-size="10" fill="#23262f">−2.5</text>
+            <text x="0" y="56" font-size="10" fill="#6b7080">new loss</text>
+            <rect x="80" y="46" width="22" height="12" rx="2" fill="#bfc3cc"/>
+            <text x="106" y="56" font-size="10" fill="#23262f">−0.9</text>
+          </svg>
+          <p>Augmentation is worth 4.1 points, the most of the three parts</p>
+          <span class="go">↓ section 1</span>
+        </a>
+        <a class="panel" id="panel-loss" href="#new-loss">
+          <span class="k">2 · The new loss</span>
+          <svg viewBox="0 0 220 64" role="img" aria-label="Accuracy per seed, full model and without the new loss">
+            <text x="0" y="22" font-size="10" fill="#6b7080">full model</text>
+            <circle cx="146.8" cy="18" r="3.5" fill="#23262f"/>
+            <circle cx="166" cy="18" r="3.5" fill="#23262f"/>
+            <circle cx="185.2" cy="18" r="3.5" fill="#23262f"/>
+            <path d="M166 11 V25" stroke="#23262f" stroke-width="1.5"/>
+            <text x="0" y="50" font-size="10" fill="#6b7080">− new loss</text>
+            <circle cx="89.2" cy="46" r="3.5" fill="#d24d7c"/>
+            <circle cx="114.8" cy="46" r="3.5" fill="#d24d7c"/>
+            <circle cx="121.2" cy="46" r="3.5" fill="#d24d7c"/>
+            <path d="M108.4 39 V53" stroke="#d24d7c" stroke-width="1.5"/>
+            <path d="M108.4 33 H166 M108.4 29.5 V36.5 M166 29.5 V36.5" stroke="#d24d7c" stroke-width="1.2" fill="none"/>
+            <text x="137.2" y="29" font-size="9" fill="#d24d7c" text-anchor="middle">0.9</text>
+          </svg>
+          <p>The new loss adds 0.9 points over 3 seeds</p>
+          <span class="go">↓ section 2</span>
+        </a>
+        <a class="panel" id="panel-next" href="#next">
+          <span class="k">3 · Next run</span>
+          <svg viewBox="0 0 220 64" role="img" aria-label="GPU-hours of the two proposed runs">
+            <text x="0" y="20" font-size="10" fill="#6b7080">run A</text>
+            <rect x="44" y="10" width="37" height="12" rx="2" fill="#d24d7c"/>
+            <text x="85" y="20" font-size="10" fill="#23262f">6 GPU-h</text>
+            <text x="0" y="44" font-size="10" fill="#6b7080">run B</text>
+            <rect x="44" y="34" width="110" height="12" rx="2" fill="#bfc3cc"/>
+            <text x="158" y="44" font-size="10" fill="#23262f">18 GPU-h</text>
+          </svg>
+          <p>Next: stronger augmentation, at a third of the cost</p>
+          <span class="go">↓ section 3</span>
+        </a>
+      </div>
+      <figcaption>
+        <ul>
+          <li id="cap-aug">Removing augmentation costs 4.1 points, more than pretraining (2.5) and the new loss (0.9) together.</li>
+          <li id="cap-loss">The new loss adds 0.9 points, three times the spread between seeds.</li>
+          <li id="cap-next">Next, run stronger augmentation for 6 GPU-hours, before longer pretraining at 18.</li>
+        </ul>
+      </figcaption>
+    </figure>
+
+    <h2 id="augmentation">Augmentation is worth 4.1 points, the most of the three parts</h2>
+    <figure id="fig-ablation">
+      <table id="ablation">
+        <thead>
+          <tr><th>Run</th><th class="n">Accuracy (%)</th><th class="n">Change</th><th class="n">Seeds</th></tr>
+        </thead>
+        <tbody>
+          <tr id="row-full"><td>Full model</td><td class="n">74.0 ± 0.3</td><td class="n">baseline</td><td class="n">3</td></tr>
+          <tr id="row-aug"><td>− augmentation</td><td class="n">69.9 ± 0.4</td><td class="n big">−4.1</td><td class="n">3</td></tr>
+          <tr id="row-pre"><td>− pretraining</td><td class="n">71.5 ± 0.5</td><td class="n">−2.5</td><td class="n">3</td></tr>
+          <tr id="row-loss"><td>− new loss</td><td class="n">73.1 ± 0.3</td><td class="n">−0.9</td><td class="n">3</td></tr>
+        </tbody>
+      </table>
+      <figcaption>Test accuracy in percent, mean ± standard deviation over seeds. Each row removes one part from the full model.</figcaption>
+    </figure>
+    <ul class="cap">
+      <li id="b-aug-1">Without augmentation, accuracy falls from 74.0 to 69.9, a drop of 4.1 points.</li>
+      <li id="b-aug-2">Pretraining is second at 2.5 points, and the new loss is last at 0.9.</li>
+      <li id="b-aug-3">Every drop is larger than the spread between seeds, which is 0.5 points at most.</li>
+    </ul>
+    <div class="map" aria-label="Map of the page"><span class="done here">1 · Augmentation, 4.1</span><span>2 · The new loss, 0.9</span><span>3 · Next run</span></div>
+
+    <h2 id="new-loss">The new loss adds 0.9 points, three times the seed spread</h2>
+    <figure id="fig-seeds">
+      <svg viewBox="0 0 760 206" role="img" aria-label="Accuracy of every seed for the four runs">
+        <g font-size="12" fill="#6b7080">
+          <text x="0" y="38">Full model</text>
+          <text x="0" y="90">− new loss</text>
+          <text x="0" y="132">− pretraining</text>
+          <text x="0" y="170">− augmentation</text>
+        </g>
+        <g stroke="#eceef2" stroke-width="1">
+          <path d="M170 18 V186 M265 18 V186 M360 18 V186 M455 18 V186 M550 18 V186 M645 18 V186 M740 18 V186"/>
+        </g>
+        <path d="M170 186 H740" stroke="#c9ccd4" stroke-width="1"/>
+        <g font-size="11" fill="#a4a8b3" text-anchor="middle">
+          <text x="170" y="201">69</text><text x="265" y="201">70</text><text x="360" y="201">71</text>
+          <text x="455" y="201">72</text><text x="550" y="201">73</text><text x="645" y="201">74</text>
+          <text x="740" y="201">75</text>
+        </g>
+        <g fill="#23262f">
+          <circle cx="616.5" cy="34" r="5"/><circle cx="645" cy="34" r="5"/><circle cx="673.5" cy="34" r="5"/>
+        </g>
+        <path d="M645 23 V45" stroke="#23262f" stroke-width="2"/>
+        <g fill="#d24d7c">
+          <circle cx="531" cy="86" r="5"/><circle cx="569" cy="86" r="5"/><circle cx="578.5" cy="86" r="5"/>
+        </g>
+        <path d="M559.5 75 V97" stroke="#d24d7c" stroke-width="2"/>
+        <g fill="#bfc3cc">
+          <circle cx="360" cy="128" r="5"/><circle cx="407.5" cy="128" r="5"/><circle cx="455" cy="128" r="5"/>
+          <circle cx="217.5" cy="166" r="5"/><circle cx="255.5" cy="166" r="5"/><circle cx="293.5" cy="166" r="5"/>
+        </g>
+        <path d="M407.5 117 V139 M255.5 155 V177" stroke="#a4a8b3" stroke-width="2"/>
+        <path d="M559.5 60 H645 M559.5 55 V65 M645 55 V65" stroke="#d24d7c" stroke-width="1.5" fill="none"/>
+        <text x="602.25" y="54" font-size="12" fill="#d24d7c" text-anchor="middle">0.9 points</text>
+      </svg>
+      <figcaption>Accuracy of each seed, in percent. A tick marks each run's mean.</figcaption>
+    </figure>
+    <ul class="cap">
+      <li id="b-loss-1">Over 3 seeds, the model without the new loss scores 73.1 against 74.0 for the full model.</li>
+      <li id="b-loss-2">Both runs spread ±0.3 across seeds, so the 0.9-point gap is three times the noise.</li>
+    </ul>
+    <div class="map" aria-label="Map of the page"><span class="done">1 · Augmentation, 4.1</span><span class="done here">2 · The new loss, 0.9</span><span>3 · Next run</span></div>
+
+    <h2 id="next">Next run: stronger augmentation, at a third of the cost</h2>
+    <figure id="fig-next">
+      <table id="next-runs">
+        <thead>
+          <tr><th>Run</th><th>Change</th><th class="n">GPU-hours</th><th>Tests</th></tr>
+        </thead>
+        <tbody>
+          <tr id="run-a"><td>A</td><td>Stronger augmentation: 2 random operations at magnitude 9</td><td class="n big">6</td><td>the largest part, augmentation</td></tr>
+          <tr id="run-b"><td>B</td><td>Pretraining for twice as many steps</td><td class="n">18</td><td>the second part, pretraining</td></tr>
+        </tbody>
+      </table>
+      <figcaption>Both runs keep the new loss and use 3 seeds.</figcaption>
+    </figure>
+    <ul class="cap">
+      <li id="b-next-1">Run A tests the part worth the most, augmentation, for 6 GPU-hours.</li>
+      <li id="b-next-2">Run B tests the second part, pretraining, at three times the cost.</li>
+      <li id="b-next-3">Run A goes first. If it adds less than 0.5 points, run B goes next.</li>
+    </ul>
+    <div class="map" aria-label="Map of the page"><span class="done">1 · Augmentation, 4.1</span><span class="done">2 · The new loss, 0.9</span><span class="done here">3 · Next run</span></div>
+  </main>
+
+  <script src="../assets/comment-layer.js"></script>
+  <script src="../assets/toc-layer.js"></script>
+</body>
+</html>

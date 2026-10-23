@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-comment-doc="document" data-comment-root="#content">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deliverable</title>
+  <link rel="stylesheet" href="comment-layer.css">
+  <link rel="stylesheet" href="toc-layer.css">
+  <style>
+    /* Content styling lives here or in the body — the comment layer is content-agnostic. */
+    body { margin: 0; font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1f2330; }
+    #content { max-width: 900px; margin: 40px auto; padding: 0 24px 120px; }
+  </style>
+</head>
+<body>
+  <!-- Everything the reader comments on goes inside the content root.
+       The comment UI (chip, panel, pins) and the TOC live outside it.
+       Wrap each picture and its caption in one <figure>, so a comment on it names the figure. -->
+  <main id="content">
+    <h1>Title</h1>
+    <p>Replace this with the delivered content. Any element here is commentable.</p>
+    <!-- The TOC sidebar auto-builds from h2/h3 headings in here (h2 class="part" for part-level
+         rows in long multi-part docs). It only appears once the doc has 3+ headings. -->
+  </main>
+
+  <script src="comment-layer.js"></script>
+  <script src="toc-layer.js"></script>
+</body>
+</html>

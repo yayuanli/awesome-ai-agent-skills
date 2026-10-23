@@ -1,0 +1,72 @@
+{
+  "docId": "document",
+  "version": 1,
+  "threads": [
+    {
+      "id": "tmvkgfcfumgl9",
+      "createdBy": "Sam",
+      "createdAt": "2026-10-21T21:02:11.000Z",
+      "status": "resolved",
+      "anchor": {
+        "type": "element",
+        "elementId": "cmt-1dtsph0",
+        "cssPath": "#run-b > td:nth-of-type(2)",
+        "quote": {
+          "exact": "Pretraining for twice as many steps",
+          "prefix": "he largest part, augmentation\nB\t",
+          "suffix": "\t18\tthe second part, pretraining"
+        },
+        "label": "B · Change"
+      },
+      "messages": [
+        {
+          "author": "Sam",
+          "text": "How much does each run cost? Put GPU-hours in the table.",
+          "at": "2026-10-21T21:02:11.000Z"
+        },
+        {
+          "author": "AI",
+          "text": "Added a GPU-hours column. Run A takes 6 and run B takes 18, so A goes first.",
+          "at": "2026-10-21T21:19:40.000Z",
+          "agent": {
+            "session": "session_demo",
+            "host": "laptop"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tmvkgfeunqq0x",
+      "createdBy": "Sam",
+      "createdAt": "2026-10-23T04:12:58.991Z",
+      "status": "open",
+      "anchor": {
+        "type": "element",
+        "elementId": "cmt-74s5qf",
+        "cssPath": "#row-loss > td:nth-of-type(2)",
+        "quote": {
+          "exact": "73.1 ± 0.3",
+          "prefix": "ng\t71.5 ± 0.5\t−2.5\t3\n− new loss\t",
+          "suffix": "\t−0.9\t3\nTest accuracy in percent"
+        },
+        "label": "− new loss · Accuracy (%)"
+      },
+      "messages": [
+        {
+          "author": "Sam",
+          "text": "This row ran 1 seed and the others ran 3. Is the 1.2 real?",
+          "at": "2026-10-23T04:12:58.991Z"
+        },
+        {
+          "author": "AI",
+          "text": "It was 1 seed. Two more seeds give 73.1 ± 0.3, so the new loss is worth 0.9 points, not 1.2. I updated this row, the dot plot and the overview. Want 5 seeds on the full model too?",
+          "at": "2026-10-23T04:18:59.821Z",
+          "agent": {
+            "session": "session_demo",
+            "host": "laptop"
+          }
+        }
+      ]
+    }
+  ]
+}
