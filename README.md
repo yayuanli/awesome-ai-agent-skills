@@ -28,7 +28,7 @@ Each skill is a plain `SKILL.md` folder in the [Agent Skills](https://agentskill
 
 > **TL;DR** The agent hands you its report as a web page. Click any cell or sentence and comment, like in Google Docs. The agent reads every comment, fixes the page, and replies in each thread.
 >
-> Why HTML: a page shows what a chat reply can't, with real tables, charts and images, and the whole result laid out at once. Why commentable: you point at the exact cell instead of describing it, and the agent answers all your comments in one revision, each reply sitting next to the part you pointed at.
+> Why HTML: a page shows what a chat reply can't, with color, formatting, real tables, charts and images, and dynamic parts that fold, play and update live, all laid out at once. Why commentable: you comment in context, right on the cell or sentence you mean, instead of describing it in chat. The agent answers all your comments in one revision, each reply sitting next to the part you pointed at.
 
 ![A report page with a contents sidebar on the left, the claim and three overview panels at the top, a results table with one cell marked, the reader's question and the agent's reply in a card beside that cell, and a comments panel on the right](media/commentable-html.png)
 
